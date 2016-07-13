@@ -1,4 +1,3 @@
-using System.IO;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -11,17 +10,29 @@ namespace TestApp
 {
     public class Startup
     {
-        private IConfigurationRoot _configuration;
+        private readonly IConfigurationRoot _configuration;
+
+        public IConfigurationRoot Configuration {
+            get 
+            {
+                return _configuration;
+            }
+        }
+
+        public Startup(IHostingEnvironment env) 
+        {
+            var builder = new ConfigurationBuilder()
+                .SetBasePath(env.ContentRootPath)
+                .AddJsonFile("appsettings.json", optional:true, reloadOnChange:true)
+                .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional:true)
+                .AddEnvironmentVariables();
+                
+            _configuration = builder.Build();
+        }
+
         public void ConfigureServices(IServiceCollection services)
         {
-            var config = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json")
-                .Build();
-
-            _configuration = config;
-
-            var sqlConnectionString = _configuration["ConnectionStrings:GeneralDb"];
+            var sqlConnectionString = Configuration["ConnectionStrings:GeneralDb"];
 
             services.AddDbContext<GeneralDbContext>(options =>
             {
@@ -34,7 +45,7 @@ namespace TestApp
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
 
-            loggerFactory.AddConsole(_configuration.GetSection("Logging"));
+            loggerFactory.AddConsole(Configuration.GetSection("Logging"));
 
             MapperConfig.Configure();
 
