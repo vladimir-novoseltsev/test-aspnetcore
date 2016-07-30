@@ -2,7 +2,15 @@
   "version": "1.0.0-*",
   "buildOptions": {
     "debugType": "portable",
-    "emitEntryPoint": true
+    "emitEntryPoint": true,
+    "copyToOutput": [
+      "appsettings.json"
+    ]
+  },
+  "publishOptions": {
+    "include": [
+      "appsettings.json"
+    ]
   },
   "dependencies": {},
   "frameworks": {
